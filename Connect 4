@@ -1,0 +1,144 @@
+player1 = input('Player X, write your name. ')
+player2 = input('Player O, write your name. ')
+boardPos = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
+import pygame
+import sys
+import math
+pygame.init()
+BLUE = (0,0,255)
+BLACK = (0,0,0)
+RED = (255,0,0)
+YELLOW = (255,255,0)
+
+def game_over():
+  global player1
+  global player2
+  for i in range(7):
+    for j in range(3):
+      if boardPos[i][j] == boardPos[i][j+1] == boardPos[i][j+2] == boardPos[i][j+3] and boardPos[i][j] in [1,2]:
+        if boardPos[i][j] == 1:
+          name = player1
+        else:
+          name = player2
+        print(name + ' wins!')
+        return True
+  for i in range(4):
+    for j in range(3):
+      if boardPos[i][j] == boardPos[i+1][j+1] == boardPos[i+2][j+2] == boardPos[i+3][j+3] and boardPos[i][j] in [1,2]:
+        if boardPos[i][j] == 1:
+          name = player1
+        else:
+          name = player2
+        print(name + ' wins!')
+        return True
+  for i in range(4):
+    for j in range(3,6):
+      if boardPos[i][j] == boardPos[i+1][j-1] == boardPos[i+2][j-2] == boardPos[i+3][j-3] and boardPos[i][j] in [1,2]:
+        if boardPos[i][j] == 1:
+          name = player1
+        else:
+          name = player2
+        print(name + ' wins!')
+        return True
+  for i in range(4):
+    for j in range(6):
+      if boardPos[i][j] == boardPos[i+1][j] == boardPos[i+2][j] == boardPos[i+3][j] and boardPos[i][j] in [1,2]:
+        if boardPos[i][j] == 1:
+          name = player1
+        else:
+          name = player2
+        print(name + ' wins!')
+        return True
+  return False
+def draw_board():
+  global boardPos
+  for i in range(6):
+    string = ''
+    for j in range(7):
+      if boardPos[j][i] == 0:
+        string = string + '.\t'
+      elif boardPos[j][i] == 1:
+        string = string + 'X\t'
+      elif boardPos[j][i] == 2:
+        string = string + 'O\t'
+    print(string)
+  print('1\t2\t3\t4\t5\t6\t7')
+def draw_board2(SQUARESIZE):
+  global boardPos
+  global BLUE
+  global BLACK
+  global RED
+  global YELLOW
+  for c in range(7):
+    for r in range(6):
+      pygame.draw.rect(screen,BLUE,(c*SQUARESIZE,(r+1)*SQUARESIZE, SQUARESIZE, SQUARESIZE))
+      if boardPos[c][r] == 0:
+        pygame.draw.circle(screen,BLACK,(int((c+0.5)*SQUARESIZE),int((r+1.5)*SQUARESIZE)), int(SQUARESIZE/2) - 5)
+      elif boardPos[c][r] == 1:
+        pygame.draw.circle(screen,RED,(int((c+0.5)*SQUARESIZE),int((r+1.5)*SQUARESIZE)), int(SQUARESIZE/2) - 5)
+      else:
+        pygame.draw.circle(screen,YELLOW,(int((c+0.5)*SQUARESIZE),int((r+1.5)*SQUARESIZE)), int(SQUARESIZE/2) - 5)
+
+SQUARESIZE = 75
+width = 7 * SQUARESIZE
+height = 7 * SQUARESIZE
+size = (width,height)
+screen = pygame.display.set_mode(size)
+count = 0
+finished = False
+draw_board2(SQUARESIZE)
+pygame.display.update()
+
+
+while finished == False:
+  for event in pygame.event.get():
+    if event.type == pygame.MOUSEMOTION:
+      pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
+      posx = event.pos[0]
+      if count == 0:
+        pygame.draw.circle(screen,RED,(posx,int((0.5)*SQUARESIZE)), int(SQUARESIZE/2))
+      else:
+        pygame.draw.circle(screen,YELLOW,(posx,int((0.5)*SQUARESIZE)), int(SQUARESIZE/2))
+      pygame.display.update()
+    if event.type == pygame.MOUSEBUTTONDOWN:
+      columnChoice = int(math.floor(posx/SQUARESIZE))
+      if count == 0:
+        if columnChoice > 6:
+          print('Invaild Choice. Turn is skipped.')
+        else:
+          column = boardPos[columnChoice]
+          back = 0
+          for i in range(6):
+            back -= 1
+            if column[back] == 0:
+              column[back] = 1
+              break
+            if i == 5:
+              print('Invaild Choice. Turn is skipped.')
+          boardPos.pop(columnChoice)
+          boardPos.insert(columnChoice, column)
+          draw_board2(SQUARESIZE)
+          pygame.display.update()
+      else:
+        if columnChoice > 6:
+          print('Invaild Choice. Turn is skipped.')
+        else:
+          column = boardPos[columnChoice]
+          back = 0
+          for i in range(6):
+            back -= 1
+            if column[back] == 0:
+              column[back] = 2
+              break
+            if i == 5:
+              print('Invaild Choice. Turn is skipped.')
+          boardPos.pop(columnChoice)
+          boardPos.insert(columnChoice, column)
+          draw_board2(SQUARESIZE)
+          pygame.display.update()
+        
+      count += 1
+      count %= 2
+      finished = game_over()
+
+pygame.time.wait(3000)
